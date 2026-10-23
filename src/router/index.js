@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 /**
  * 路由配置 - 图书借阅管理系统
@@ -54,17 +55,25 @@ const router = createRouter({
 
 /**
  * 全局前置守卫：登录鉴权
- * 读取 localStorage 中的 library_token，
- * 没有 token 且目标页面需要鉴权时，强制跳转到 /login
+ *
+ * 注意：useUserStore() 必须写在守卫回调内部，不能在模块顶层调用。
+ * 原因：router/index.js 被导入时 App 尚未创建、Pinia 实例还未挂载，
+ * 此时顶层调用 useUserStore() 会报错：
+ * "getActivePinia was called but there is no active Pinia. Did you forget to install pinia?"
+ * 而守卫只有在路由导航时才执行，那时应用已完成挂载、Pinia 已注入，调用才是安全的。
+ *
+ * 这里读取 user store 的 isLoggedIn getter 做鉴权（不再直接操作 localStorage）。
  */
 router.beforeEach((to) => {
-  const token = localStorage.getItem('library_token')
-  // requiresAuth 为 true 表示该页面需要登录才能访问
-  if (to.meta.requiresAuth && !token) {
+  // 在守卫内部调用 store：此时应用已挂载、Pinia 已注入，避免顶层调用报错
+  const userStore = useUserStore()
+
+  // requiresAuth 为 true 表示需要登录；未登录则强制跳转到 /login
+  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
     return '/login'
   }
   // 已登录用户访问登录页，跳回首页
-  if (to.path === '/login' && token) {
+  if (to.path === '/login' && userStore.isLoggedIn) {
     return '/'
   }
   return true

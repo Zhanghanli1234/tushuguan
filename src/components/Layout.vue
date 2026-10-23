@@ -6,7 +6,10 @@ import { useUserStore } from '@/stores/user'
 const router = useRouter()
 const userStore = useUserStore()
 
-// 退出登录：清除 token，跳回登录页
+// 读取 user store 的 username getter：当前登录用户名
+const username = userStore.username
+
+// 退出登录：调用 store 的 logout() 清 token，跳回登录页
 function handleLogout() {
   userStore.logout()
   router.push('/login')
@@ -18,6 +21,12 @@ function handleLogout() {
     <!-- ===== 侧边栏菜单 ===== -->
     <aside class="sidebar">
       <h2 class="logo">📚 图书系统</h2>
+
+      <!-- 当前登录用户信息 -->
+      <div class="user-info">
+        👤 {{ username }}
+      </div>
+
       <nav class="menu">
         <RouterLink to="/books">图书列表</RouterLink>
         <RouterLink to="/records">借阅记录</RouterLink>
@@ -52,6 +61,15 @@ function handleLogout() {
 .logo {
   padding: 0 20px;
   font-size: 18px;
+}
+
+/* 当前登录用户信息样式 */
+.user-info {
+  margin-top: 12px;
+  padding: 8px 20px;
+  font-size: 14px;
+  color: #dfe6e9;
+  border-bottom: 1px solid #46627f;
 }
 
 .menu {

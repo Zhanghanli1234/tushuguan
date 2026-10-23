@@ -1,14 +1,19 @@
 <script setup>
-// 登录页 - 模拟登录：写入 token 后跳转到图书列表
+// 登录页：输入用户名，登录后跳转到图书列表
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const userStore = useUserStore()
 
-// 模拟登录：存 token + 跳转图书列表
+// 输入框绑定的用户名
+const username = ref('')
+
+// 点击登录：调用 store 的 login 方法，成功后跳图书列表
 function handleLogin() {
-  userStore.login('张三')
+  if (!username.value.trim()) return // 用户名为空则不提交
+  userStore.login(username.value.trim())
   router.push('/books')
 }
 </script>
@@ -16,7 +21,15 @@ function handleLogin() {
 <template>
   <div class="login-page">
     <h1>图书系统登录</h1>
-    <button class="login-btn" @click="handleLogin">模拟登录</button>
+    <!-- 用户名输入框，v-model 双向绑定 -->
+    <input
+      class="login-input"
+      v-model="username"
+      type="text"
+      placeholder="请输入用户名"
+      @keyup.enter="handleLogin"
+    />
+    <button class="login-btn" @click="handleLogin">登录</button>
   </div>
 </template>
 
@@ -51,6 +64,24 @@ function handleLogin() {
   color: #fff;
   font-size: 16px;
   cursor: pointer;
+}
+
+/* 用户名输入框 */
+.login-input {
+  width: 100%;
+  max-width: 320px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+/* 输入框聚焦时的边框高亮 */
+.login-input:focus {
+  border-color: #42b883;
 }
 
 .login-btn:hover {
