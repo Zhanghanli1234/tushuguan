@@ -1,12 +1,14 @@
 <script setup lang="ts">
 // 布局组件：侧边菜单 + 主内容区
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 // 退出登录：清除 token，跳回登录页
 function handleLogout() {
-  localStorage.removeItem('library_token')
+  userStore.logout()
   router.push('/login')
 }
 </script>

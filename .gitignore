@@ -9,8 +9,9 @@ lerna-debug.log*
 
 node_modules
 .DS_Store
-dist
-dist-ssr
+# dist 需要提交到仓库，故取消忽略
+# dist
+# dist-ssr
 coverage
 *.local
 

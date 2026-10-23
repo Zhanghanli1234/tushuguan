@@ -1,12 +1,14 @@
 <script setup>
 // 登录页 - 模拟登录：写入 token 后跳转到图书列表
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 // 模拟登录：存 token + 跳转图书列表
 function handleLogin() {
-  localStorage.setItem('library_token', 'demo-token')
+  userStore.login('张三')
   router.push('/books')
 }
 </script>
