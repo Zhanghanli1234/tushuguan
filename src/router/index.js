@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '../stores/user' // user store
 
 const routes = [
   {
@@ -47,16 +48,16 @@ const router = createRouter({
 
 // 全局前置守卫：路由跳转前执行
 router.beforeEach((to) => {
-  // 从 localStorage 读取登录状态
-  const token = localStorage.getItem('library_token')
+  // 通过 user store 判断登录状态（不再直接操作 localStorage）
+  const userStore = useUserStore()
 
   // 需要登录的页面 + 未登录 → 跳去登录页
-  if (to.meta.requiresAuth && !token) {
+  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
     return { path: '/login' }
   }
 
   // 已登录时访问登录页 → 跳回首页
-  if (to.path === '/login' && token) {
+  if (to.path === '/login' && userStore.isLoggedIn) {
     return { path: '/' }
   }
 })
