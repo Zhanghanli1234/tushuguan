@@ -1,9 +1,9 @@
 import request from '../utils/request'
 
-// 分页查询图书列表
+// 分页 + 关键词查询图书列表
 // @returns {Promise<any>} 拦截器已解包出 data，故标 any，避免 AxiosResponse 类型误报
-export function getBooks(page) {
-  return request.get('/books', { params: { page } })
+export function getBooks({ page = 1, pageSize = 10, keyword = '' }) {
+  return request.get('/books', { params: { page, pageSize, keyword } })
 }
 
 // 新增图书

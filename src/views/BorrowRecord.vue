@@ -1,29 +1,60 @@
 <script setup lang="ts">
-// 简化示例：写死几条借阅记录用于展示
+// 简化示例：写死几条借阅记录用于展示，dueDate 为到期日
 const records = [
-  { id: 1, book: 'Vue 3 实战', date: '2026-10-01', status: '已归还' },
-  { id: 2, book: '计算机网络', date: '2026-10-15', status: '借阅中' },
+  { id: 1, book: 'Vue 3 实战', date: '2026-10-01', dueDate: '2026-10-20', status: '已归还' },
+  { id: 2, book: '计算机网络', date: '2026-10-15', dueDate: '2026-10-25', status: '借阅中' },
+  { id: 3, book: '算法导论', date: '2026-10-15', dueDate: '2026-10-25', status: '借阅中' },
 ]
+
+// 状态映射：给 el-tag 配置 type，让不同状态显示不同颜色
+const statusMap: Record<string, string> = {
+  已归还: 'success',
+  借阅中: 'warning',
+}
+
+// 按到期日分组：{ '2026-10-25': ['计算机网络', '算法导论'] }，供日历按天渲染
+const dueMap = records.reduce<Record<string, string[]>>((acc, r) => {
+  ;(acc[r.dueDate] ||= []).push(r.book)
+  return acc
+}, {})
 </script>
 
 <template>
   <div class="borrow-record">
     <h2>📖 借阅记录</h2>
 
-    <ul class="record-list">
-      <li v-for="record in records" :key="record.id" class="record-item">
-        <div class="record-info">
-          <span class="book-title">《{{ record.book }}》</span>
-          <span class="book-date">借阅于 {{ record.date }}</span>
+    <!-- 表格展示借阅记录 -->
+    <el-table :data="records" style="width: 100%">
+      <el-table-column prop="id" label="ID" width="80" />
+      <el-table-column prop="book" label="书名" min-width="200" />
+      <el-table-column prop="date" label="借阅日期" width="160" />
+      <!-- 状态列：用 el-tag 展示，颜色随状态变化 -->
+      <el-table-column label="状态" width="120" align="center">
+        <template #default="{ row }">
+          <el-tag :type="statusMap[row.status] || 'info'">
+            {{ row.status }}
+          </el-tag>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!-- 借阅日历：按到期日标记，悬停显示当天到期图书 -->
+    <h2>📅 借阅日历</h2>
+    <el-calendar>
+      <!-- 自定义单元格：当天有到期图书时，用 tooltip 展示 -->
+      <template #date-cell="{ data }">
+        <div class="cal-cell">
+          {{ data.day.slice(-2) }}
+          <el-tooltip
+            v-if="dueMap[data.day]?.length"
+            :content="dueMap[data.day]?.join('、') || ''"
+            placement="top"
+          >
+            <span class="cal-dot">●</span>
+          </el-tooltip>
         </div>
-        <span
-          class="status"
-          :class="record.status === '借阅中' ? 'borrowing' : 'returned'"
-        >
-          {{ record.status }}
-        </span>
-      </li>
-    </ul>
+      </template>
+    </el-calendar>
   </div>
 </template>
 
@@ -39,60 +70,17 @@ h2 {
   color: #2c3e50;
 }
 
-.record-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.cal-cell {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.record-item {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: transform 0.15s, box-shadow 0.15s;
+  gap: 2px;
 }
 
-.record-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-}
-
-.record-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.book-title {
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.book-date {
-  font-size: 13px;
-  color: #999;
-}
-
-.status {
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-}
-
-.borrowing {
-  background: #fff3e0;
+/* 到期标记圆点 */
+.cal-dot {
   color: #e65100;
-}
-
-.returned {
-  background: #e8f5e9;
-  color: #2e7d32;
+  font-size: 10px;
+  line-height: 1;
 }
 </style>

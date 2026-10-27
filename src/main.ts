@@ -1,6 +1,8 @@
 import './assets/main.css'
 
 import { createApp } from 'vue'
+import ElementPlus from 'element-plus' // Element Plus 组件库
+import 'element-plus/dist/index.css' // Element Plus 默认样式
 import { createPinia } from 'pinia' // Pinia 状态管理
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate' // Pinia 持久化插件
 import App from './App.vue'
@@ -25,5 +27,6 @@ pinia.use(piniaPluginPersistedstate)
 
 app.use(pinia) // 挂载 Pinia
 app.use(router) // 挂载路由，启用路由功能
+app.use(ElementPlus) // 全局注册 Element Plus 组件
 
 app.mount('#app')
